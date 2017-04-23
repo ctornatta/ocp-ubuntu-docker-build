@@ -1,0 +1,13 @@
+{
+    "kind": "ImageStream",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "ubuntu",
+        "annotations": {
+            "description": "Ubuntu docker image"
+        }
+    },
+    "spec": {
+        "dockerImageRepository": "docker.io/ubuntu"
+    }
+}

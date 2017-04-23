@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: docker-build
+metadata:
+  annotations:
+    description: Template for building images inside of OCP.
+  creationTimestamp: null
+  name: docker-build
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${BUILD_IMAGE_NAME}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      description: Builds the Base JBoss Custom Container
+    name: ${BUILD_IMAGE_NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${BUILD_IMAGE_NAME}:latest
+    resources: {}
+    source:
+      contextDir: ${GIT_CONTEXT_DIR}
+      git:
+        ref: ${GIT_REF}
+        uri: ${GIT_URI}
+      type: Git
+    strategy:
+      type: Docker
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: ${FROM_IMAGESTREAM}
+          namespace: ${IMAGESTREAM_NAMESPACE}
+        noCache: false
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+parameters:
+- description: The name for the build image
+  displayName: Build Image Name
+  name: BUILD_IMAGE_NAME
+  required: true
+- description: Git source URI for application
+  name: GIT_URI
+  value: git@github.com:dummy/dummy_repo.git
+  required: true
+- description: Git branch/tag reference
+  name: GIT_REF
+  value: master
+  required: true
+- description: Path within Git project to build; empty for root project directory.
+  name: GIT_CONTEXT_DIR
+- description: "Image stream of base Image that you are building your docker image from."
+  name: FROM_IMAGESTREAM
+  required: true
+- description: Namespace of the image stream.
+  name: IMAGESTREAM_NAMESPACE
+  value: openshift
+  required: true
